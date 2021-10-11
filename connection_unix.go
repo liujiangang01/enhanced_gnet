@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//go:build linux || freebsd || dragonfly || darwin
 // +build linux freebsd dragonfly darwin
 
 package gnet
@@ -156,11 +157,55 @@ func (c *conn) write(buf []byte) (err error) {
 	return
 }
 
+func (c *conn) writev(bufs [][]byte) (err error) {
+	defer c.loop.eventHandler.AfterWritev(c, bufs)
+
+	var outFrame []byte
+	if outFrame, err = c.codec.Encodev(c, bufs); err != nil {
+		return
+	}
+
+	c.loop.eventHandler.PreWrite(c)
+
+	// If there is pending data in outbound buffer, the current data ought to be appended to the outbound buffer
+	// for maintaining the sequence of network packets.
+	if !c.outboundBuffer.IsEmpty() {
+		_, _ = c.outboundBuffer.Write(outFrame)
+		return
+	}
+
+	var n int
+	if n, err = unix.Write(c.fd, outFrame); err != nil {
+		// A temporary error occurs, append the data to outbound buffer, writing it back to client in the next round.
+		if err == unix.EAGAIN {
+			_, _ = c.outboundBuffer.Write(outFrame)
+			err = c.loop.poller.ModReadWrite(c.pollAttachment)
+			return
+		}
+		return c.loop.loopCloseConn(c, os.NewSyscallError("write", err))
+	}
+	// Fail to send all data back to client, buffer the leftover data for the next round.
+	if n < len(outFrame) {
+		_, _ = c.outboundBuffer.Write(outFrame[n:])
+		err = c.loop.poller.ModReadWrite(c.pollAttachment)
+	}
+	return
+}
+
 func (c *conn) asyncWrite(itf interface{}) error {
 	if !c.opened {
 		return nil
 	}
 	return c.write(itf.([]byte))
+}
+
+func (c *conn) asyncWriteV(itf interface{}) error {
+	if !c.opened {
+		return nil
+	}
+	wb, _ := itf.(WrappedBuffer)
+	c.SetContext(wb.ctx)
+	return c.writev(wb.bufs)
 }
 
 func (c *conn) sendTo(buf []byte) error {
@@ -246,6 +291,15 @@ func (c *conn) BufferLength() int {
 
 func (c *conn) AsyncWrite(buf []byte) error {
 	return c.loop.poller.Trigger(c.asyncWrite, buf)
+}
+
+type WrappedBuffer struct {
+	bufs [][]byte
+	ctx  interface{}
+}
+
+func (c *conn) AsyncWriteV(wb WrappedBuffer) error {
+	return c.loop.poller.Trigger(c.asyncWriteV, wb)
 }
 
 func (c *conn) SendTo(buf []byte) error {

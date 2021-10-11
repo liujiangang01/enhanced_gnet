@@ -177,6 +177,10 @@ type (
 		// you put the []byte's back to your memory pool.
 		AfterWrite(c Conn, b []byte)
 
+		// AfterWrite fires right after a packet is written to the peer socket, this event function is usually where
+		// you put the [][]byte's back to your memory pool.
+		AfterWritev(c Conn, b [][]byte)
+
 		// React fires when a connection sends the server data.
 		// Call c.Read() or c.ReadN(n) within the parameter:c to read incoming data from client.
 		// Parameter:out is the return value which is going to be sent back to the client.

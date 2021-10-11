@@ -26,7 +26,7 @@ import (
 	"errors"
 	"fmt"
 
-	errorset "github.com/panjf2000/gnet/errors"
+	errorset "github.com/liujiangang01/enhanced_gnet/errors"
 )
 
 // CRLFByte represents a byte of CRLF.
@@ -73,6 +73,15 @@ func (cc *BuiltInFrameCodec) Encode(c Conn, buf []byte) ([]byte, error) {
 	return buf, nil
 }
 
+// Encode ...
+func (cc *BuiltInFrameCodec) Encodev(c Conn, data_vec [][]byte) ([]byte, error) {
+	var buf []byte
+	for _, data := range data_vec {
+		buf = append(buf, data...)
+	}
+	return buf, nil
+}
+
 // Decode ...
 func (cc *BuiltInFrameCodec) Decode(c Conn) ([]byte, error) {
 	buf := c.Read()
@@ -85,6 +94,15 @@ func (cc *BuiltInFrameCodec) Decode(c Conn) ([]byte, error) {
 
 // Encode ...
 func (cc *LineBasedFrameCodec) Encode(c Conn, buf []byte) ([]byte, error) {
+	return append(buf, CRLFByte), nil
+}
+
+// Encodev ...
+func (cc *LineBasedFrameCodec) Encodev(c Conn, data_vec [][]byte) ([]byte, error) {
+	var buf []byte
+	for _, data := range data_vec {
+		buf = append(buf, data...)
+	}
 	return append(buf, CRLFByte), nil
 }
 
@@ -109,6 +127,15 @@ func (cc *DelimiterBasedFrameCodec) Encode(c Conn, buf []byte) ([]byte, error) {
 	return append(buf, cc.delimiter), nil
 }
 
+// Encodev ...
+func (cc *DelimiterBasedFrameCodec) Encodev(c Conn, data_vec [][]byte) ([]byte, error) {
+	var buf []byte
+	for _, data := range data_vec {
+		buf = append(buf, data...)
+	}
+	return append(buf, cc.delimiter), nil
+}
+
 // Decode ...
 func (cc *DelimiterBasedFrameCodec) Decode(c Conn) ([]byte, error) {
 	buf := c.Read()
@@ -127,6 +154,18 @@ func NewFixedLengthFrameCodec(frameLength int) *FixedLengthFrameCodec {
 
 // Encode ...
 func (cc *FixedLengthFrameCodec) Encode(c Conn, buf []byte) ([]byte, error) {
+	if len(buf)%cc.frameLength != 0 {
+		return nil, errorset.ErrInvalidFixedLength
+	}
+	return buf, nil
+}
+
+// Encodev ...
+func (cc *FixedLengthFrameCodec) Encodev(c Conn, data_vec [][]byte) ([]byte, error) {
+	var buf []byte
+	for _, data := range data_vec {
+		buf = append(buf, data...)
+	}
 	if len(buf)%cc.frameLength != 0 {
 		return nil, errorset.ErrInvalidFixedLength
 	}
@@ -179,6 +218,53 @@ type DecoderConfig struct {
 
 // Encode ...
 func (cc *LengthFieldBasedFrameCodec) Encode(c Conn, buf []byte) (out []byte, err error) {
+	length := len(buf) + cc.encoderConfig.LengthAdjustment
+	if cc.encoderConfig.LengthIncludesLengthFieldLength {
+		length += cc.encoderConfig.LengthFieldLength
+	}
+
+	if length < 0 {
+		return nil, errorset.ErrTooLessLength
+	}
+
+	switch cc.encoderConfig.LengthFieldLength {
+	case 1:
+		if length >= 256 {
+			return nil, fmt.Errorf("length does not fit into a byte: %d", length)
+		}
+		out = []byte{byte(length)}
+	case 2:
+		if length >= 65536 {
+			return nil, fmt.Errorf("length does not fit into a short integer: %d", length)
+		}
+		out = make([]byte, 2)
+		cc.encoderConfig.ByteOrder.PutUint16(out, uint16(length))
+	case 3:
+		if length >= 16777216 {
+			return nil, fmt.Errorf("length does not fit into a medium integer: %d", length)
+		}
+		out = writeUint24(cc.encoderConfig.ByteOrder, length)
+	case 4:
+		out = make([]byte, 4)
+		cc.encoderConfig.ByteOrder.PutUint32(out, uint32(length))
+	case 8:
+		out = make([]byte, 8)
+		cc.encoderConfig.ByteOrder.PutUint64(out, uint64(length))
+	default:
+		return nil, errorset.ErrUnsupportedLength
+	}
+
+	out = append(out, buf...)
+	return
+}
+
+// Encodev ...
+func (cc *LengthFieldBasedFrameCodec) Encodev(c Conn, data_vec [][]byte) (out []byte, err error) {
+	var buf []byte
+	for _, data := range data_vec {
+		buf = append(buf, data...)
+	}
+
 	length := len(buf) + cc.encoderConfig.LengthAdjustment
 	if cc.encoderConfig.LengthIncludesLengthFieldLength {
 		length += cc.encoderConfig.LengthFieldLength

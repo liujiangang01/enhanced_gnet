@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//go:build linux || freebsd || dragonfly || darwin
 // +build linux freebsd dragonfly darwin
 
 package gnet
@@ -29,8 +30,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/internal/netpoll"
+	"github.com/liujiangang01/enhanced_gnet/errors"
+	"github.com/liujiangang01/enhanced_gnet/internal/netpoll"
 )
 
 type server struct {

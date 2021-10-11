@@ -38,10 +38,10 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/logging"
-	"github.com/panjf2000/gnet/pool/bytebuffer"
-	"github.com/panjf2000/gnet/pool/goroutine"
+	"github.com/liujiangang01/enhanced_gnet/errors"
+	"github.com/liujiangang01/enhanced_gnet/logging"
+	"github.com/liujiangang01/enhanced_gnet/pool/bytebuffer"
+	"github.com/liujiangang01/enhanced_gnet/pool/goroutine"
 )
 
 func TestCodecServe(t *testing.T) {
@@ -208,6 +208,10 @@ func (s *testCodecServer) React(packet []byte, c Conn) (out []byte, action Actio
 		return
 	}
 	out = packet
+	return
+}
+
+func (s *testCodecServer) AfterWritev(c Conn, packet [][]byte) {
 	return
 }
 
@@ -501,6 +505,10 @@ func (s *testServer) React(packet []byte, c Conn) (out []byte, action Action) {
 	return
 }
 
+func (s *testServer) AfterWritev(c Conn, packet [][]byte) {
+	return
+}
+
 func (s *testServer) Tick() (delay time.Duration, action Action) {
 	if atomic.LoadInt32(&s.started) == 0 {
 		for i := 0; i < s.nclients; i++ {
@@ -605,6 +613,10 @@ func (t *testBadAddrServer) OnInitComplete(srv Server) (action Action) {
 	return Shutdown
 }
 
+func (s *testBadAddrServer) AfterWritev(c Conn, packet [][]byte) {
+	return
+}
+
 func TestBadAddresses(t *testing.T) {
 	events := new(testBadAddrServer)
 	err := Serve(events, "tulip://howdy")
@@ -622,6 +634,10 @@ func TestTick(t *testing.T) {
 type testTickServer struct {
 	*EventServer
 	count int
+}
+
+func (s *testTickServer) AfterWritev(c Conn, packet [][]byte) {
+	return
 }
 
 func (t *testTickServer) Tick() (delay time.Duration, action Action) {
@@ -673,6 +689,10 @@ func (t *testWakeConnServer) OnClosed(c Conn, err error) (action Action) {
 func (t *testWakeConnServer) React(packet []byte, c Conn) (out []byte, action Action) {
 	out = []byte("Waking up.")
 	action = -1
+	return
+}
+
+func (s *testWakeConnServer) AfterWritev(c Conn, packet [][]byte) {
 	return
 }
 
@@ -729,6 +749,10 @@ func (t *testShutdownServer) OnClosed(c Conn, err error) (action Action) {
 	return
 }
 
+func (s *testShutdownServer) AfterWritev(c Conn, packet [][]byte) {
+	return
+}
+
 func (t *testShutdownServer) Tick() (delay time.Duration, action Action) {
 	if t.count == 0 {
 		// start clients
@@ -778,6 +802,10 @@ func (t *testCloseActionErrorServer) React(packet []byte, c Conn) (out []byte, a
 	return
 }
 
+func (s *testCloseActionErrorServer) AfterWritev(c Conn, packet [][]byte) {
+	return
+}
+
 func (t *testCloseActionErrorServer) Tick() (delay time.Duration, action Action) {
 	if !t.action {
 		t.action = true
@@ -818,6 +846,10 @@ func (t *testShutdownActionErrorServer) React(packet []byte, c Conn) (out []byte
 	c.ReadN(-1) // just for test
 	out = packet
 	action = Shutdown
+	return
+}
+
+func (s *testShutdownActionErrorServer) AfterWritev(c Conn, packet [][]byte) {
 	return
 }
 
@@ -867,6 +899,10 @@ func (t *testCloseActionOnOpenServer) OnClosed(c Conn, err error) (action Action
 	return
 }
 
+func (s *testCloseActionOnOpenServer) AfterWritev(c Conn, packet [][]byte) {
+	return
+}
+
 func (t *testCloseActionOnOpenServer) Tick() (delay time.Duration, action Action) {
 	if !t.action {
 		t.action = true
@@ -909,6 +945,10 @@ func (t *testShutdownActionOnOpenServer) OnShutdown(s Server) {
 	logging.Debugf("dup fd: %d with error: %v\n", dupFD, err)
 }
 
+func (s *testShutdownActionOnOpenServer) AfterWritev(c Conn, packet [][]byte) {
+	return
+}
+
 func (t *testShutdownActionOnOpenServer) Tick() (delay time.Duration, action Action) {
 	if !t.action {
 		t.action = true
@@ -945,6 +985,10 @@ type testUDPShutdownServer struct {
 func (t *testUDPShutdownServer) React(packet []byte, c Conn) (out []byte, action Action) {
 	out = packet
 	action = Shutdown
+	return
+}
+
+func (s *testUDPShutdownServer) AfterWritev(c Conn, packet [][]byte) {
 	return
 }
 
@@ -999,6 +1043,10 @@ func (t *testCloseConnectionServer) React(packet []byte, c Conn) (out []byte, ac
 	return
 }
 
+func (s *testCloseConnectionServer) AfterWritev(c Conn, packet [][]byte) {
+	return
+}
+
 func (t *testCloseConnectionServer) Tick() (delay time.Duration, action Action) {
 	delay = time.Millisecond * 100
 	if !t.action {
@@ -1049,6 +1097,10 @@ func (t *testStopServer) OnClosed(c Conn, err error) (action Action) {
 
 func (t *testStopServer) React(packet []byte, c Conn) (out []byte, action Action) {
 	out = packet
+	return
+}
+
+func (s *testStopServer) AfterWritev(c Conn, packet [][]byte) {
 	return
 }
 
@@ -1157,5 +1209,9 @@ func (tes *testClosedWakeUpServer) OnClosed(c Conn, err error) (action Action) {
 	default:
 		close(tes.serverClosed)
 	}
+	return
+}
+
+func (s *testClosedWakeUpServer) AfterWritev(c Conn, packet [][]byte) {
 	return
 }

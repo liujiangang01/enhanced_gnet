@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// +build linux
-// +build !poll_opt
+//go:build linux && !poll_opt
+// +build linux,!poll_opt
 
 package netpoll
 
@@ -32,9 +32,9 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	"github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/internal/queue"
-	"github.com/panjf2000/gnet/logging"
+	"github.com/liujiangang01/enhanced_gnet/errors"
+	"github.com/liujiangang01/enhanced_gnet/internal/queue"
+	"github.com/liujiangang01/enhanced_gnet/logging"
 )
 
 // Poller represents a poller which is in charge of monitoring file-descriptors.

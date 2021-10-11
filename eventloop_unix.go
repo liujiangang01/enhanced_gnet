@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//go:build linux || freebsd || dragonfly || darwin
 // +build linux freebsd dragonfly darwin
 
 package gnet
@@ -34,10 +35,10 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	gerrors "github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/internal/io"
-	"github.com/panjf2000/gnet/internal/netpoll"
-	"github.com/panjf2000/gnet/logging"
+	gerrors "github.com/liujiangang01/enhanced_gnet/errors"
+	"github.com/liujiangang01/enhanced_gnet/internal/io"
+	"github.com/liujiangang01/enhanced_gnet/internal/netpoll"
+	"github.com/liujiangang01/enhanced_gnet/logging"
 )
 
 type eventloop struct {

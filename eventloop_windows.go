@@ -28,9 +28,9 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/logging"
-	"github.com/panjf2000/gnet/pool/bytebuffer"
+	"github.com/liujiangang01/enhanced_gnet/errors"
+	"github.com/liujiangang01/enhanced_gnet/logging"
+	"github.com/liujiangang01/enhanced_gnet/pool/bytebuffer"
 )
 
 type eventloop struct {

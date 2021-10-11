@@ -19,11 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//go:build !linux && !freebsd && !dragonfly && !darwin && !windows
 // +build !linux,!freebsd,!dragonfly,!darwin,!windows
 
 package gnet
 
-import "github.com/panjf2000/gnet/errors"
+import "github.com/liujiangang01/enhanced_gnet/errors"
 
 type server struct {
 	subEventLoopSet loadBalancer // event-loops for handling events

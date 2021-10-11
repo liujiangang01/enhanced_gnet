@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//go:build freebsd || dragonfly || darwin
 // +build freebsd dragonfly darwin
 
 package io
@@ -25,7 +26,7 @@ package io
 import (
 	"golang.org/x/sys/unix"
 
-	"github.com/panjf2000/gnet/errors"
+	"github.com/liujiangang01/enhanced_gnet/errors"
 )
 
 // Writev simply calls write() multiple times cuz writev() on BSD-like OS's is not yet implemented in Go.

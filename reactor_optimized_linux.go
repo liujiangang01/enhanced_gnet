@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//go:build poll_opt
 // +build poll_opt
 
 package gnet
@@ -25,7 +26,7 @@ package gnet
 import (
 	"runtime"
 
-	"github.com/panjf2000/gnet/errors"
+	"github.com/liujiangang01/enhanced_gnet/errors"
 )
 
 func (el *eventloop) activateMainReactor(lockOSThread bool) {

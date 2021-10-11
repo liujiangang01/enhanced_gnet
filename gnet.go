@@ -28,9 +28,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/internal"
-	"github.com/panjf2000/gnet/logging"
+	"github.com/liujiangang01/enhanced_gnet/errors"
+	"github.com/liujiangang01/enhanced_gnet/internal"
+	"github.com/liujiangang01/enhanced_gnet/logging"
 )
 
 // Action is an action that occurs after the completion of an event.
@@ -229,6 +229,11 @@ func (es *EventServer) PreWrite(c Conn) {
 // AfterWrite fires right after a packet is written to the peer socket, this event function is usually where
 // you put the []byte's back to your memory pool.
 func (es *EventServer) AfterWrite(c Conn, b []byte) {
+}
+
+// AfterWrite fires right after a packet is written to the peer socket, this event function is usually where
+// you put the []byte's back to your memory pool.
+func (es *EventServer) AfterWritev(c Conn, b [][]byte) {
 }
 
 // React fires when a connection sends the server data.

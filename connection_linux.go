@@ -18,11 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//go:build linux
 // +build linux
 
 package gnet
 
-import "github.com/panjf2000/gnet/internal/netpoll"
+import "github.com/liujiangang01/enhanced_gnet/netpoll"
 
 func (c *conn) handleEvents(ev uint32) error {
 	// Don't change the ordering of processing EPOLLOUT | EPOLLRDHUP / EPOLLIN unless you're 100%

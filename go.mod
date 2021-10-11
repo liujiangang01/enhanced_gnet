@@ -1,4 +1,4 @@
-module github.com/panjf2000/gnet
+module github.com/liujiangang01/enhanced_gnet
 
 go 1.16
 
@@ -14,5 +14,4 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
 
-// Go module checksum mismatch, see https://github.com/panjf2000/gnet/issues/219
 // retract v1.4.5

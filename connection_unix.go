@@ -204,8 +204,8 @@ func (c *conn) asyncWritev(itf interface{}) error {
 		return nil
 	}
 	wb, _ := itf.(WrappedBuffer)
-	c.SetContext(wb.ctx)
-	return c.writev(wb.bufs)
+	c.SetContext(wb.Ctx)
+	return c.writev(wb.Bufs)
 }
 
 func (c *conn) sendTo(buf []byte) error {
@@ -294,8 +294,8 @@ func (c *conn) AsyncWrite(buf []byte) error {
 }
 
 type WrappedBuffer struct {
-	bufs [][]byte
-	ctx  interface{}
+	Bufs [][]byte
+	Ctx  interface{}
 }
 
 func (c *conn) AsyncWritev(wb WrappedBuffer) error {

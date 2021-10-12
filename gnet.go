@@ -137,9 +137,9 @@ type Conn interface {
 	// instead of the event-loop goroutines.
 	AsyncWrite(buf []byte) error
 
-	// AsyncWrite writes data to client/connection asynchronously, usually you would call it in individual goroutines
+	// AsyncWritev writes data_vec to client/connection asynchronously, usually you would call it in individual goroutines
 	// instead of the event-loop goroutines.
-	AsyncWritev(bufs [][]byte) error
+	AsyncWritev(wb WrappedBuffer) error
 
 	// Wake triggers a React event for this connection.
 	Wake() error

@@ -199,7 +199,7 @@ func (c *conn) asyncWrite(itf interface{}) error {
 	return c.write(itf.([]byte))
 }
 
-func (c *conn) asyncWriteV(itf interface{}) error {
+func (c *conn) asyncWritev(itf interface{}) error {
 	if !c.opened {
 		return nil
 	}
@@ -298,8 +298,8 @@ type WrappedBuffer struct {
 	ctx  interface{}
 }
 
-func (c *conn) AsyncWriteV(wb WrappedBuffer) error {
-	return c.loop.poller.Trigger(c.asyncWriteV, wb)
+func (c *conn) AsyncWritev(wb WrappedBuffer) error {
+	return c.loop.poller.Trigger(c.asyncWritev, wb)
 }
 
 func (c *conn) SendTo(buf []byte) error {
